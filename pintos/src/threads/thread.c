@@ -212,6 +212,8 @@ thread_create (const char *name, int priority,
   /* Add to run queue. */
   thread_unblock (t);
 
+  if (t!=idle_thread ) { thread_yield (); }
+
   return tid;
 }
 
@@ -378,6 +380,12 @@ thread_sleep_foreach (thread_action_func *func, void *aux)
       struct thread *t = list_entry (e, struct thread, sleepelem);
       func (t, aux);
     }
+}
+
+void
+thread_lockwaiters_ordered_insert (struct list *waiting_list,struct list_elem *elem)
+{
+  list_insert_ordered(waiting_list, elem, thread_prior_cmp, NULL);
 }
 
 /* Compares the value of priority between two threads A and B,
